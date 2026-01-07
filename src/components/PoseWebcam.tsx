@@ -34,7 +34,7 @@ export default function PoseWebcam() {
 
         // wasm 로더 경로(여기만 맞으면 Vite에서도 잘 돕니다)
         const vision = await FilesetResolver.forVisionTasks(
-          `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${TASKS_VERSION}/wasm`
+          `https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@${TASKS_VERSION}/wasm`,
         );
 
         landmarkerRef.current = await PoseLandmarker.createFromOptions(vision, {
@@ -95,7 +95,8 @@ export default function PoseWebcam() {
       setStatus("실시간 추적 중...");
 
       const predict = () => {
-        if (!landmarkerRef.current || !videoRef.current || !canvasRef.current) return;
+        if (!landmarkerRef.current || !videoRef.current || !canvasRef.current)
+          return;
         if (!running) return;
 
         const nowVideoTime = video.currentTime;
@@ -108,7 +109,10 @@ export default function PoseWebcam() {
 
             for (const landmark of result.landmarks ?? []) {
               drawingUtils.drawLandmarks(landmark);
-              drawingUtils.drawConnectors(landmark, PoseLandmarker.POSE_CONNECTIONS);
+              drawingUtils.drawConnectors(
+                landmark,
+                PoseLandmarker.POSE_CONNECTIONS,
+              );
             }
           });
         }
@@ -145,7 +149,14 @@ export default function PoseWebcam() {
     <div style={{ maxWidth: 960 }}>
       <h2>PoseLandmarker Webcam Test (React)</h2>
 
-      <div style={{ display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap" }}>
+      <div
+        style={{
+          display: "flex",
+          gap: 12,
+          alignItems: "center",
+          flexWrap: "wrap",
+        }}
+      >
         <button onClick={running ? stop : start}>
           {running ? "Stop" : "Start"}
         </button>
