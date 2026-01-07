@@ -4,6 +4,7 @@ import HomePage from '@/pages/Home';
 import LoginPage from '@/pages/Auth/LoginPage';
 import CallbackPage from '@/pages/Auth/CallbackPage';
 import NotFoundPage from '@/pages/NotFound';
+import PoseWebcamPage from '@/pages/Pose/PoseWebcamPage';
 
 export const router = createBrowserRouter([
   {
@@ -12,6 +13,7 @@ export const router = createBrowserRouter([
       { path: '/', element: <HomePage /> },
       { path: '/login', element: <LoginPage /> },
       { path: '/auth/callback', element: <CallbackPage /> },
+      { path: '/pose/init', element: <PoseWebcamPage /> },
       { path: '*', element: <NotFoundPage /> },
     ],
   },

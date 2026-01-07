@@ -2,12 +2,22 @@ import { useState, useEffect } from 'react';
 import { Modal } from '@/components/common/Modal/Modal';
 import { Button } from '@/components/common/Button/Button';
 import useHealthStore from '@/stores/useHealthStore';
+import useGoogleStore from '@/stores/useAuthStore';
 import tempImg from '@/assets/imgs/poseDetection.jpg';
 import panda from '@/assets/imgs/panda.png';
+import { useNavigate } from 'react-router-dom';
 
 export default function HomePage() {
+  const navigate = useNavigate();
   const [isHealthCheckOpen, setIsHealthCheckOpen] = useState(false);
   const { healthStatus, healthMessage, checkServerHealth } = useHealthStore();
+  const { isAuthenticated, user, fetchUser, token } = useGoogleStore();
+
+  useEffect(() => {
+    if (token && !user) {
+      fetchUser();
+    }
+  }, [token, user, fetchUser]);
 
   useEffect(() => {
     // 컴포넌트가 켜질 때 서버 체크 함수 실행!
@@ -20,6 +30,12 @@ export default function HomePage() {
       checkServerHealth();
     }
   }, [isHealthCheckOpen, checkServerHealth]);
+
+  const HandlePoseWebcam = () => {
+    if (isAuthenticated && user) {
+      navigate('/pose/init');
+    }
+  };
 
   return (
     <div className="relative -m-6 flex min-h-[calc(100vh-88px)] w-[calc(100%+48px)] flex-col overflow-hidden">
@@ -57,6 +73,7 @@ export default function HomePage() {
                     <Button
                       size="lg"
                       variant="primary"
+                      onClick={HandlePoseWebcam}
                       className="w-full min-w-[200px] sm:w-auto"
                     >
                       자세 교정하러 가기
@@ -148,10 +165,6 @@ export default function HomePage() {
         {/* Description */}
         <p className="mb-6 text-center text-sm text-text-muted">
           백엔드 서버의 상태를 확인합니다.
-          <br />
-          <span className="font-mono text-xs text-muted">
-            http://127.0.0.1:8010/health
-          </span>
         </p>
 
         {/* Status Message */}
