@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/common/Button/Button';
 import useGoogleStore from '@/stores/useAuthStore';
@@ -43,7 +43,6 @@ export default function LoginPage() {
   const { gLogin, isAuthenticated } = useGoogleStore();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const [error, setError] = useState<string | null>(null);
 
   // 이미 로그인된 사용자는 홈으로 리디렉트
   useEffect(() => {
@@ -52,17 +51,17 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, navigate]);
 
-  // URL에서 에러 파라미터 확인
-  useEffect(() => {
+  // URL에서 에러 파라미터 확인 (파생 상태로 처리)
+  const error = useMemo(() => {
     const errorParam = searchParams.get('error');
     if (errorParam) {
       console.log('Login error:', errorParam);
-      setError('로그인 중 오류가 발생했습니다. 다시 시도해주세요.');
+      return '로그인 중 오류가 발생했습니다. 다시 시도해주세요.';
     }
+    return null;
   }, [searchParams]);
 
   const handleGoogleLogin = () => {
-    setError(null);
     gLogin(); // Zustand store의 login 함수 호출 - 구글 OAuth 페이지로 리디렉션
   };
 

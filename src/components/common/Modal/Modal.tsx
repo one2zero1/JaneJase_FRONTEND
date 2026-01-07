@@ -7,13 +7,7 @@ type Props = PropsWithChildren<{
   size?: 'sm' | 'md' | 'lg';
 }>;
 
-export function Modal({
-  open,
-  onClose,
-  title,
-  size = 'md',
-  children,
-}: Props) {
+export function Modal({ open, onClose, title, size = 'md', children }: Props) {
   if (!open) return null;
 
   const sizes = {
@@ -29,7 +23,7 @@ export function Modal({
     >
       <div
         className={`relative w-full ${sizes[size]} rounded-2xl border border-border bg-surface p-8 shadow-soft`}
-        onClick={(e) => e.stopPropagation()}
+        onClick={e => e.stopPropagation()}
       >
         {/* Close Button */}
         <button

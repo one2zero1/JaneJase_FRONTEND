@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Modal } from '@/components/common/Modal/Modal';
 import { Button } from '@/components/common/Button/Button';
 import useHealthStore from '@/stores/useHealthStore';
@@ -7,7 +6,6 @@ import tempImg from '@/assets/imgs/poseDetection.jpg';
 import panda from '@/assets/imgs/panda.png';
 
 export default function HomePage() {
-  const navigate = useNavigate();
   const [isHealthCheckOpen, setIsHealthCheckOpen] = useState(false);
   const { healthStatus, healthMessage, checkServerHealth } = useHealthStore();
 
@@ -21,7 +19,7 @@ export default function HomePage() {
       // 헬스체크 모달이 열릴 때마다 서버 상태를 확인합니다.
       checkServerHealth();
     }
-  }, [isHealthCheckOpen]);
+  }, [isHealthCheckOpen, checkServerHealth]);
 
   return (
     <div className="relative -m-6 flex min-h-[calc(100vh-88px)] w-[calc(100%+48px)] flex-col overflow-hidden">
