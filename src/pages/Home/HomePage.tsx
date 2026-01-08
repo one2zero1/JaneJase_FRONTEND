@@ -130,36 +130,16 @@ export default function HomePage() {
         {/* Icon */}
         <div className="mb-6 flex justify-center">
           <div
-            className={`rounded-full p-4 ${
+            className={`h-16 w-16 rounded-full ${
               healthStatus === 'loading'
-                ? 'animate-pulse bg-primary/10'
+                ? 'animate-pulse bg-blue-500'
                 : healthStatus === 'success'
-                  ? 'bg-success/10'
+                  ? 'bg-green-500'
                   : healthStatus === 'error'
-                    ? 'bg-red-500/10'
-                    : 'bg-primary/10'
+                    ? 'bg-red-500'
+                    : 'bg-gray-500'
             }`}
-          >
-            <span
-              className={`material-symbols-outlined text-4xl ${
-                healthStatus === 'loading'
-                  ? 'text-primary'
-                  : healthStatus === 'success'
-                    ? 'text-success'
-                    : healthStatus === 'error'
-                      ? 'text-red-500'
-                      : 'text-primary'
-              }`}
-            >
-              {healthStatus === 'loading'
-                ? 'sync'
-                : healthStatus === 'success'
-                  ? 'check_circle'
-                  : healthStatus === 'error'
-                    ? 'error'
-                    : 'health_and_safety'}
-            </span>
-          </div>
+          />
         </div>
 
         {/* Description */}
