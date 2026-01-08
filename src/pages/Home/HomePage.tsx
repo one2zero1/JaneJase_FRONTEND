@@ -3,7 +3,7 @@ import { Modal } from '@/components/common/Modal/Modal';
 import { Button } from '@/components/common/Button/Button';
 import useHealthStore from '@/stores/useHealthStore';
 import useGoogleStore from '@/stores/useAuthStore';
-import tempImg from '@/assets/imgs/poseDetection.jpg';
+import tempImg from '@/assets/imgs/poseDetection.png';
 import panda from '@/assets/imgs/panda.png';
 import { useNavigate } from 'react-router-dom';
 
@@ -112,8 +112,12 @@ export default function HomePage() {
                     </div>
 
                     {/* Demo Content */}
-                    <div className="relative aspect-[16/9] w-full overflow-hidden">
-                      <img src={tempImg} alt="Pose Detection Demo" />
+                    <div className="relative w-full h-full overflow-hidden">
+                      <img
+                        src={tempImg}
+                        alt="Pose Detection Demo"
+                        className="h-full w-full object-cover"
+                      />
                     </div>
                   </div>
                 </div>
