@@ -29,6 +29,7 @@ export function Modal({ open, onClose, title, size = 'md', children }: Props) {
         <button
           onClick={onClose}
           className="absolute right-4 top-4 flex h-8 w-8 items-center justify-center rounded-full text-muted transition-colors hover:bg-bg hover:text-text"
+          aria-label="닫기"
         >
           <span className="material-symbols-outlined text-xl">close</span>
         </button>

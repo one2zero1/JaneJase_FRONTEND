@@ -13,7 +13,7 @@ function MoonIcon(props: React.SVGProps<SVGSVGElement>) {
 
 function SunIcon(props: React.SVGProps<SVGSVGElement>) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...props}>
+    <svg viewBox="0 0 24 24" fill="white" aria-hidden="true" {...props}>
       <path d="M12 18a6 6 0 1 0 0-12 6 6 0 0 0 0 12Zm0-16h1v3h-1V2Zm0 17h1v3h-1v-3ZM2 11h3v1H2v-1Zm17 0h3v1h-3v-1ZM4.22 4.22l2.12 2.12-.7.7L3.52 4.92l.7-.7Zm14.14 14.14 2.12 2.12-.7.7-2.12-2.12.7-.7ZM18.36 5.64l2.12-2.12.7.7-2.12 2.12-.7-.7ZM5.64 18.36l2.12-2.12.7.7-2.12 2.12-.7-.7Z" />
     </svg>
   );
