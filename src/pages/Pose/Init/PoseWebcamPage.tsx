@@ -8,7 +8,7 @@ import { Pose3DRenderer } from '../Pose3DRenderer';
 import type { Pose2DRendererRef } from '../Pose2DRenderer';
 import type { Pose3DRendererRef } from '../Pose3DRenderer';
 import type { Coordinate, MeasurementData } from '@/types/poseTypes';
-
+import { getCenter, dist } from '@/utils/detectPose';
 const TASKS_VERSION = '0.10.0';
 const MODEL_URL =
   'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
@@ -65,9 +65,7 @@ export default function PoseWebcamPage() {
     });
   };
 
-  const calculateAverage = (
-    points: Array<Coordinate>
-  ) => {
+  const calculateAverage = (points: Array<Coordinate>) => {
     const sum = points.reduce(
       (acc, p) => ({
         x: acc.x + p.x,
@@ -109,7 +107,15 @@ export default function PoseWebcamPage() {
         leftShoulder: calculateAverage(data.map(d => d.leftShoulder)),
         rightShoulder: calculateAverage(data.map(d => d.rightShoulder)),
       };
-      setAvgMeasurementData(avgData);
+
+      // 어깨 중심과 너비 계산 및 추가
+      const shoulderCenter = getCenter(
+        avgData.leftShoulder,
+        avgData.rightShoulder
+      );
+      const shoulderWidth = dist(avgData.leftShoulder, avgData.rightShoulder);
+
+      setAvgMeasurementData({ ...avgData, shoulderCenter, shoulderWidth });
 
       console.log('=== 측정 완료: 10초간 수집된 랜드마크 평균값 ===');
       console.log('0 - nose:', avgData.nose);
@@ -334,27 +340,6 @@ export default function PoseWebcamPage() {
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">
-      {/* Completion Panel */}
-      {avgMeasurementData && (
-        <div className="mb-8 rounded-xl border border-success bg-gradient-to-r from-success/10 to-success/5 p-8 shadow-soft">
-          <div className="flex flex-col items-center justify-center gap-6 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500">
-              <span className="material-symbols-outlined text-4xl text-white">
-                check_circle
-              </span>
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-2xl font-bold text-text">
-                측정이 완료되었습니다!
-              </h3>
-            </div>
-            <Button onClick={handleNextPage} variant="accent" size="lg">
-              다음 단계로 이동
-            </Button>
-          </div>
-        </div>
-      )}
-
       <div className="mb-8">
         {/* 개발 디버깅용 안보이는 버튼 */}
         <button
@@ -403,6 +388,27 @@ export default function PoseWebcamPage() {
           </div>
         </div>
       </div>
+
+      {/* Completion Panel */}
+      {avgMeasurementData && (
+        <div className="mb-8 rounded-xl border border-success bg-gradient-to-r from-success/10 to-success/5 p-8 shadow-soft">
+          <div className="flex flex-col items-center justify-center gap-6 text-center">
+            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500">
+              <span className="material-symbols-outlined text-4xl text-white">
+                check_circle
+              </span>
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-2xl font-bold text-text">
+                측정이 완료되었습니다!
+              </h3>
+            </div>
+            <Button onClick={handleNextPage} variant="accent" size="lg">
+              다음 단계로 이동
+            </Button>
+          </div>
+        </div>
+      )}
 
       {/* Video + 2D overlay */}
       <div

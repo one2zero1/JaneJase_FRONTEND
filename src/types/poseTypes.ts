@@ -5,6 +5,15 @@ export interface Coordinate {
   z: number;
 }
 
+export interface detectBadPoseInform {
+  diffNSDegree: number;
+  diffESDegree: number;
+  diffShoulderLeanDegree: number;
+  headdownStatus: string;
+  headforwardStatus: string;
+  shoulderLeanStatus: string;
+}
+
 // 보내주신 ref 구조와 일치하는 데이터 타입
 export interface MeasurementData {
   nose: Coordinate;
@@ -20,6 +29,8 @@ export interface MeasurementData {
   mouthRight: Coordinate;
   leftShoulder: Coordinate;
   rightShoulder: Coordinate;
+  shoulderCenter: Coordinate;
+  shoulderWidth: number;
 }
 
 // location.state의 전체 구조

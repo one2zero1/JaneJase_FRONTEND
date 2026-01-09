@@ -161,9 +161,7 @@ export const Pose3DRenderer = forwardRef<
    * - 포즈 점과 연결선의 버퍼 지오메트리 업데이트
    * @param worldLm - 3D 월드 좌표 랜드마크 배열
    */
-  const updateThreeFromWorldLandmarks = (
-    worldLm: Array<Coordinate>
-  ) => {
+  const updateThreeFromWorldLandmarks = (worldLm: Array<Coordinate>) => {
     const t = threeRef.current;
     if (!t) return;
     if (worldLm.length < 13) return;

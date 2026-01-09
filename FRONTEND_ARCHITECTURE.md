@@ -26,6 +26,7 @@
 JaneJase Frontend는 **AI 기반 실시간 자세 교정 서비스**를 제공하는 React 애플리케이션입니다. MediaPipe를 활용한 포즈 감지, Zustand 기반 상태 관리, Tailwind CSS를 이용한 반응형 디자인으로 구성되어 있습니다.
 
 **핵심 가치:**
+
 - 실시간 포즈 감지 및 자세 분석
 - 개인 맞춤형 기준 자세 설정
 - GPU 가속 ML 추론
@@ -48,14 +49,14 @@ JaneJase Frontend는 **AI 기반 실시간 자세 교정 서비스**를 제공�
 
 ### 라우트 상세
 
-| 경로 | 컴포넌트 | 설명 | 인증 필요 |
-|------|----------|------|-----------|
-| `/` | HomePage | 랜딩 페이지, 히어로 섹션, CTA 버튼 | ❌ |
-| `/login` | LoginPage | OAuth 인증 (Google/Kakao) | ❌ |
-| `/auth/callback` | CallbackPage | OAuth 리디렉션 처리, 토큰 추출 | ❌ |
-| `/pose/init` | PoseWebcamPage | 웹캠 설정 및 10초 기준 측정 | ⚠️ (권장) |
-| `/pose/dashboard` | DashboardPage | 실시간 자세 모니터링 대시보드 | ⚠️ (권장) |
-| `/*` | NotFoundPage | 404 페이지 | ❌ |
+| 경로              | 컴포넌트       | 설명                               | 인증 필요 |
+| ----------------- | -------------- | ---------------------------------- | --------- |
+| `/`               | HomePage       | 랜딩 페이지, 히어로 섹션, CTA 버튼 | ❌        |
+| `/login`          | LoginPage      | OAuth 인증 (Google/Kakao)          | ❌        |
+| `/auth/callback`  | CallbackPage   | OAuth 리디렉션 처리, 토큰 추출     | ❌        |
+| `/pose/init`      | PoseWebcamPage | 웹캠 설정 및 10초 기준 측정        | ⚠️ (권장) |
+| `/pose/dashboard` | DashboardPage  | 실시간 자세 모니터링 대시보드      | ⚠️ (권장) |
+| `/*`              | NotFoundPage   | 404 페이지                         | ❌        |
 
 ---
 
@@ -119,20 +120,21 @@ graph TD
 
 ```typescript
 interface AuthStore {
-  user: User | null;              // { id, email, name, picture? }
-  token: string | null;            // localStorage에 저장
-  isAuthenticated: boolean;        // token 존재 여부에서 파생
+  user: User | null; // { id, email, name, picture? }
+  token: string | null; // localStorage에 저장
+  isAuthenticated: boolean; // token 존재 여부에서 파생
   isLoading: boolean;
 
   // Actions
-  gLogin: () => void;              // 백엔드 OAuth로 리디렉션
-  gLogout: () => void;             // 토큰 & 유저 정보 제거
-  setToken: (token: string) => void;  // 토큰 저장
-  fetchUser: () => Promise<void>;  // GET /auth/me 호출
+  gLogin: () => void; // 백엔드 OAuth로 리디렉션
+  gLogout: () => void; // 토큰 & 유저 정보 제거
+  setToken: (token: string) => void; // 토큰 저장
+  fetchUser: () => Promise<void>; // GET /auth/me 호출
 }
 ```
 
 **주요 기능:**
+
 - OAuth 인증 상태 관리
 - 토큰 localStorage 영속화
 - 유저 프로필 조회 및 캐싱
@@ -148,11 +150,12 @@ interface HealthStore {
   healthMessage: string;
 
   // Actions
-  checkServerHealth: () => Promise<void>;  // GET /health 호출
+  checkServerHealth: () => Promise<void>; // GET /health 호출
 }
 ```
 
 **주요 기능:**
+
 - 백엔드 서버 연결 상태 확인
 - 홈페이지 모달에서 헬스 체크 버튼으로 호출
 
@@ -164,17 +167,18 @@ interface HealthStore {
 
 #### 주요 엔드포인트
 
-| 메서드 | 경로 | 설명 | 인증 필요 |
-|--------|------|------|-----------|
-| `GET` | `/health` | 서버 상태 확인 | ❌ |
-| `GET` | `/auth/me` | 사용자 프로필 조회 | ✅ |
-| `POST` | `/auth/login/google` | Google OAuth 리디렉션 | ❌ |
+| 메서드 | 경로                 | 설명                  | 인증 필요 |
+| ------ | -------------------- | --------------------- | --------- |
+| `GET`  | `/health`            | 서버 상태 확인        | ❌        |
+| `GET`  | `/auth/me`           | 사용자 프로필 조회    | ✅        |
+| `POST` | `/auth/login/google` | Google OAuth 리디렉션 | ❌        |
 
 **HTTP 클라이언트:** Native `fetch` API (Axios는 설치되어 있으나 미사용)
 
 **인증 헤더 형식:**
+
 ```typescript
-Authorization: Bearer <token>
+Authorization: Bearer<token>;
 ```
 
 ---
@@ -186,27 +190,31 @@ Authorization: Bearer <token>
 #### `HomePage` (`src/pages/Home/HomePage.tsx`)
 
 **기능:**
+
 - 히어로 섹션 및 CTA 버튼
 - 헬스 체크 모달 (서버 상태 확인)
 - 포즈 감지 데모 이미지 표시
 - 로그인 상태에 따른 조건부 렌더링
 
 **주요 요소:**
+
 ```tsx
-{/* CTA Buttons */}
-<Button onClick={() => navigate('/pose/init')}>
-  자세 교정하러 가기
-</Button>
+{
+  /* CTA Buttons */
+}
+<Button onClick={() => navigate('/pose/init')}>자세 교정하러 가기</Button>;
 
-{/* Health Check Modal */}
+{
+  /* Health Check Modal */
+}
 <Modal isOpen={isModalOpen}>
-  <Button onClick={checkServerHealth}>
-    서버 상태 확인
-  </Button>
-</Modal>
+  <Button onClick={checkServerHealth}>서버 상태 확인</Button>
+</Modal>;
 
-{/* Demo Image */}
-<img src={tempImg} alt="Pose Detection Demo" />
+{
+  /* Demo Image */
+}
+<img src={tempImg} alt="Pose Detection Demo" />;
 ```
 
 ---
@@ -214,10 +222,12 @@ Authorization: Bearer <token>
 #### `LoginPage` (`src/pages/Auth/LoginPage.tsx`)
 
 **기능:**
+
 - Google/Kakao OAuth 로그인 버튼
 - 백엔드 OAuth 엔드포인트로 리디렉션
 
 **동작:**
+
 ```typescript
 const handleGoogleLogin = () => {
   gLogin(); // useAuthStore의 gLogin 호출
@@ -230,11 +240,13 @@ const handleGoogleLogin = () => {
 #### `CallbackPage` (`src/pages/Auth/CallbackPage.tsx`)
 
 **기능:**
+
 - URL에서 토큰 추출 (`?token=xyz`)
 - 토큰 저장 및 유저 정보 조회
 - 로딩 스피너 표시
 
 **동작:**
+
 ```typescript
 useEffect(() => {
   const token = new URLSearchParams(location.search).get('token');
@@ -250,6 +262,7 @@ useEffect(() => {
 #### `PoseWebcamPage` (`src/pages/Pose/Init/PoseWebcamPage.tsx`)
 
 **기능:**
+
 - 웹캠 시작/중지 제어
 - 10초 측정 타이머
 - 2D 포즈 오버레이 렌더링
@@ -257,6 +270,7 @@ useEffect(() => {
 - 측정 완료 시 성공 패널 표시
 
 **주요 상태:**
+
 ```typescript
 const [isWebcamStarted, setIsWebcamStarted] = useState(false);
 const [isMeasuring, setIsMeasuring] = useState(false);
@@ -266,6 +280,7 @@ const measurementDataRef = useRef<NormalizedLandmark[][]>([]);
 ```
 
 **측정 로직:**
+
 ```typescript
 // 10초 동안 100프레임 수집
 if (isMeasuring) {
@@ -282,6 +297,7 @@ if (isMeasuring) {
 #### `DashboardPage` (`src/pages/Pose/Dashboard/DashboardPage.tsx`)
 
 **기능:**
+
 - 실시간 웹캠 피드
 - 현재 자세 상태 카드 (목 각도, 어깨 수평, 화면 거리)
 - 오늘의 통계 (경고 횟수, 집중 시간)
@@ -290,6 +306,7 @@ if (isMeasuring) {
 - 3D 포즈 렌더러 (개발자 모드)
 
 **레이아웃:**
+
 ```tsx
 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
   <div className="lg:col-span-2">
@@ -305,6 +322,7 @@ if (isMeasuring) {
 ```
 
 **측정 데이터 수신:**
+
 ```typescript
 const location = useLocation();
 const measurementData = location.state?.measurementData;
@@ -316,21 +334,26 @@ const measurementData = location.state?.measurementData;
 ### 대시보드 하위 컴포넌트
 
 #### `CurrentStatusCard`
+
 - 현재 자세 상태 표시 (Good/Warning/Bad)
 - 목 각도, 어깨 수평도, 화면 거리 메트릭
 
 #### `TodayStatsCard`
+
 - 오늘의 나쁜 자세 경고 횟수
 - 총 집중 시간
 
 #### `MetricsCard`
+
 - 머리 기울기, 몸 기울기, 화면 거리 등 주요 메트릭 그리드
 
 #### `VideoFeedSection`
+
 - 실시간 웹캠 피드
 - 시작/중지 컨트롤
 
 #### `StretchingReminderCard`
+
 - 거북목 예방을 위한 스트레칭 팁
 
 ---
@@ -340,6 +363,7 @@ const measurementData = location.state?.measurementData;
 #### `Button` (`src/components/common/Button`)
 
 **Variants:**
+
 - `primary` - 주요 액션 (파란색)
 - `secondary` - 보조 액션 (회색)
 - `accent` - 강조 (보라색)
@@ -348,6 +372,7 @@ const measurementData = location.state?.measurementData;
 - `outline` - 테두리만
 
 **Sizes:**
+
 - `sm` - 작은 버튼
 - `md` - 중간 버튼 (기본)
 - `lg` - 큰 버튼
@@ -357,6 +382,7 @@ const measurementData = location.state?.measurementData;
 #### `Modal` (`src/components/common/Modal`)
 
 **Props:**
+
 ```typescript
 interface ModalProps {
   isOpen: boolean;
@@ -371,15 +397,17 @@ interface ModalProps {
 #### `Pose2DRenderer` (`src/pages/Pose/Pose2DRenderer.tsx`)
 
 **기능:**
+
 - Canvas 기반 2D 포즈 스켈레톤 렌더링
 - 33개 랜드마크 포인트 + 연결선
 - EMA 스무딩 (alpha=0.25)
 - 비디오 크기에 맞춰 반응형 캔버스
 
 **렌더링 로직:**
+
 ```typescript
 // 랜드마크 포인트 그리기
-landmarks.forEach((lm) => {
+landmarks.forEach(lm => {
   ctx.beginPath();
   ctx.arc(lm.x * width, lm.y * height, 5, 0, 2 * Math.PI);
   ctx.fill();
@@ -398,6 +426,7 @@ POSE_CONNECTIONS.forEach(([start, end]) => {
 #### `Pose3DRenderer` (`src/pages/Pose/Pose3DRenderer.tsx`)
 
 **기능:**
+
 - Three.js 기반 3D 포즈 시각화
 - 어깨 중심 기준 월드 좌표계
 - 포인트 + 연결선 렌더링
@@ -406,6 +435,7 @@ POSE_CONNECTIONS.forEach(([start, end]) => {
 - ResizeObserver로 반응형 처리
 
 **Three.js 씬 구성:**
+
 ```typescript
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(75, aspect, 0.1, 1000);
@@ -463,7 +493,7 @@ const detectPose = async () => {
 
   const timestamp = video.currentTime * 1000;
 
-  poseLandmarker.detectForVideo(video, timestamp, (result) => {
+  poseLandmarker.detectForVideo(video, timestamp, result => {
     if (result.landmarks && result.landmarks.length > 0) {
       const landmarks = result.landmarks[0]; // 2D normalized landmarks
       const worldLandmarks = result.worldLandmarks?.[0]; // 3D world coordinates
@@ -493,11 +523,13 @@ const detectPose = async () => {
 **목적:** 포즈 감지의 떨림(jitter) 제거
 
 **공식:**
+
 ```
 smoothed_value = alpha * new_value + (1 - alpha) * previous_value
 ```
 
 **파라미터:**
+
 - 2D 렌더러: `alpha = 0.25` (빠른 반응)
 - 3D 렌더러: `alpha = 0.2` (부드러운 움직임)
 
@@ -525,6 +557,7 @@ function applyEMA(
 ### 측정 데이터 평균 계산
 
 **과정:**
+
 1. 10초 동안 100프레임 수집 (~10fps)
 2. 각 랜드마크별로 x, y, z 좌표 평균
 3. 결과를 기준 자세 데이터로 저장
@@ -569,7 +602,7 @@ function calculateAverage(
 const handleNextStep = () => {
   const avgData = calculateAverage(measurementDataRef.current);
   navigate('/pose/dashboard', {
-    state: { measurementData: avgData }
+    state: { measurementData: avgData },
   });
 };
 
@@ -588,7 +621,7 @@ const baselineMeasurement = location.state?.measurementData;
 const token = new URLSearchParams(location.search).get('token');
 if (token) {
   setToken(token); // localStorage에 저장
-  fetchUser();     // GET /auth/me 호출
+  fetchUser(); // GET /auth/me 호출
 }
 
 // useAuthStore.ts - 토큰 저장
@@ -599,7 +632,7 @@ const setToken = (token: string) => {
 
 // API 요청 시 - 헤더에 포함
 const headers = {
-  'Authorization': `Bearer ${token}`,
+  Authorization: `Bearer ${token}`,
   'Content-Type': 'application/json',
 };
 ```
@@ -613,7 +646,7 @@ const headers = {
 const startWebcam = async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({
-      video: { width: 1280, height: 720 }
+      video: { width: 1280, height: 720 },
     });
 
     if (videoRef.current) {
@@ -641,44 +674,44 @@ useEffect(() => {
 
 ### 프론트엔드 프레임워크
 
-| 항목 | 기술 | 버전 |
-|------|------|------|
-| **런타임** | React | 19.2 |
-| **언어** | TypeScript | 5.9 |
-| **빌드 도구** | Vite | 7.2 |
-| **라우팅** | React Router DOM | 7.11 |
+| 항목          | 기술             | 버전 |
+| ------------- | ---------------- | ---- |
+| **런타임**    | React            | 19.2 |
+| **언어**      | TypeScript       | 5.9  |
+| **빌드 도구** | Vite             | 7.2  |
+| **라우팅**    | React Router DOM | 7.11 |
 
 ### 상태 관리 & 데이터 페칭
 
-| 항목 | 기술 | 버전 |
-|------|------|------|
-| **상태 관리** | Zustand | 5.0 |
-| **데이터 페칭** | React Query | 5.90 |
-| **HTTP 클라이언트** | Fetch API | Native |
+| 항목                | 기술        | 버전   |
+| ------------------- | ----------- | ------ |
+| **상태 관리**       | Zustand     | 5.0    |
+| **데이터 페칭**     | React Query | 5.90   |
+| **HTTP 클라이언트** | Fetch API   | Native |
 
 ### AI/ML & 그래픽스
 
-| 항목 | 기술 | 버전 |
-|------|------|------|
-| **포즈 감지** | MediaPipe Tasks Vision | 0.10 |
-| **3D 렌더링** | Three.js | 0.182 |
-| **WebGL** | - | Native |
+| 항목          | 기술                   | 버전   |
+| ------------- | ---------------------- | ------ |
+| **포즈 감지** | MediaPipe Tasks Vision | 0.10   |
+| **3D 렌더링** | Three.js               | 0.182  |
+| **WebGL**     | -                      | Native |
 
 ### 스타일링 & UI
 
-| 항목 | 기술 | 버전 |
-|------|------|------|
-| **CSS 프레임워크** | Tailwind CSS | 3.4 |
-| **PostCSS** | PostCSS | 8.5 |
-| **Autoprefixer** | Autoprefixer | 10.4 |
+| 항목               | 기술         | 버전 |
+| ------------------ | ------------ | ---- |
+| **CSS 프레임워크** | Tailwind CSS | 3.4  |
+| **PostCSS**        | PostCSS      | 8.5  |
+| **Autoprefixer**   | Autoprefixer | 10.4 |
 
 ### 코드 품질
 
-| 항목 | 기술 | 버전 |
-|------|------|------|
-| **린터** | ESLint | 9.39 |
-| **포매터** | Prettier | 3.7 |
-| **타입 체크** | TypeScript | 5.9 |
+| 항목          | 기술       | 버전 |
+| ------------- | ---------- | ---- |
+| **린터**      | ESLint     | 9.39 |
+| **포매터**    | Prettier   | 3.7  |
+| **타입 체크** | TypeScript | 5.9  |
 
 ---
 
@@ -791,7 +824,7 @@ useEffect(() => {
 ```typescript
 // Pose3DRenderer.tsx
 useEffect(() => {
-  const resizeObserver = new ResizeObserver((entries) => {
+  const resizeObserver = new ResizeObserver(entries => {
     const { width, height } = entries[0].contentRect;
 
     camera.aspect = width / height;
@@ -822,7 +855,8 @@ useEffect(() => {
 
     const landmarker = await PoseLandmarker.createFromOptions(vision, {
       baseOptions: {
-        modelAssetPath: 'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task',
+        modelAssetPath:
+          'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task',
         delegate: 'GPU', // GPU 가속
       },
       runningMode: 'VIDEO',
@@ -922,11 +956,11 @@ useEffect(() => {
 
 ```typescript
 // useAuthStore.ts
-const useAuthStore = create<AuthStore>((set) => ({
+const useAuthStore = create<AuthStore>(set => ({
   token: localStorage.getItem('token'),
   isAuthenticated: !!localStorage.getItem('token'),
 
-  setToken: (token) => {
+  setToken: token => {
     localStorage.setItem('token', token);
     set({ token, isAuthenticated: true });
   },
