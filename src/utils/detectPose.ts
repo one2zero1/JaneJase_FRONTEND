@@ -1,4 +1,4 @@
-import type { Coordinate } from '../types/poseTypes';
+import type { Coordinate, MediapipeLandmark } from '../types/poseTypes';
 
 /**
  * 지표 설계 원칙
@@ -185,4 +185,69 @@ export function detectBadPose(
     headforwardStatus,
     shoulderLeanStatus,
   };
+}
+
+/**
+ * 2D 랜드마크를 EMA(Exponential Moving Average) 알고리즘으로 부드럽게 처리하는 순수 함수
+ * @param lm - 원본 랜드마크 배열
+ * @param emaBuffer - 이전 프레임의 버퍼 (없거나 크기가 안 맞으면 새로 생성됨)
+ * @param emaInited - 초기화 여부
+ * @param alpha - 평활화 계수 (0~1, 클수록 현재 값 비중 높음)
+ * @param minConf - 최소 신뢰도
+ * @returns {smoothedLandmarks, updatedBuffer, updatedInited}
+ */
+export function emaSmooth2DLandmarks(
+  lm: MediapipeLandmark[],
+  emaBuffer: Float32Array | null,
+  emaInited: boolean,
+  alpha = 0.25,
+  minConf = 0.5
+) {
+  const n = lm.length;
+  const needed = n * 3;
+
+  let buffer = emaBuffer;
+  let inited = emaInited;
+
+  if (!buffer || buffer.length !== needed) {
+    buffer = new Float32Array(needed);
+    inited = false;
+  }
+
+  const buf = buffer;
+
+  if (!inited) {
+    for (let i = 0; i < n; i++) {
+      const p = lm[i];
+      buf[i * 3 + 0] = p.x;
+      buf[i * 3 + 1] = p.y;
+      buf[i * 3 + 2] = p.z ?? 0;
+    }
+    inited = true;
+  } else {
+    for (let i = 0; i < n; i++) {
+      const p = lm[i];
+      const conf = Math.min(p.visibility ?? 1, p.presence ?? 1);
+      if (conf < minConf) continue;
+
+      const ix = i * 3;
+      buf[ix + 0] = alpha * p.x + (1 - alpha) * buf[ix + 0];
+      buf[ix + 1] = alpha * p.y + (1 - alpha) * buf[ix + 1];
+      buf[ix + 2] = alpha * (p.z ?? 0) + (1 - alpha) * buf[ix + 2];
+    }
+  }
+
+  const out = new Array(n);
+  for (let i = 0; i < n; i++) {
+    const ix = i * 3;
+    out[i] = {
+      x: buf[ix + 0],
+      y: buf[ix + 1],
+      z: buf[ix + 2],
+      visibility: lm[i].visibility,
+      presence: lm[i].presence,
+    };
+  }
+
+  return { smoothedLandmarks: out, updatedBuffer: buf, updatedInited: inited };
 }

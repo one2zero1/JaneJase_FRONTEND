@@ -9,6 +9,9 @@ import type { Pose2DRendererRef } from '../Pose2DRenderer';
 import type { Pose3DRendererRef } from '../Pose3DRenderer';
 import type { Coordinate, MeasurementData } from '@/types/poseTypes';
 import { getCenter, dist2D } from '@/utils/detectPose';
+import { usePoseStore } from '@/stores/usePoseStore';
+import useGoogleStore from '@/stores/useAuthStore';
+
 const TASKS_VERSION = '0.10.0';
 const MODEL_URL =
   'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
@@ -61,10 +64,32 @@ export default function PoseWebcamPage() {
   const measurementTimerRef = useRef<number | null>(null);
   const measurementStartTimeRef = useRef<number>(0);
 
-  const handleNextPage = () => {
-    navigate('/pose/dashboard', {
-      state: { measurementData: avgMeasurementData },
-    });
+  const saveStandardData = usePoseStore(state => state.saveStandardData);
+  const user = useGoogleStore(state => state.user);
+
+  const handleNextPage = async () => {
+    try {
+      if (!avgMeasurementData) {
+        throw new Error('측정 데이터가 없습니다.');
+      }
+
+      const pose_id = await saveStandardData({
+        user_id: user?.id || '',
+        measurement: avgMeasurementData,
+        ended_at: null,
+      });
+
+      if (pose_id) {
+        navigate('/pose/dashboard', {
+          state: {
+            measurementData: avgMeasurementData,
+            pose_id: pose_id,
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Standard Data 저장 실패:', error);
+    }
   };
 
   const calculateAverage = (points: Array<Coordinate>) => {
@@ -354,7 +379,7 @@ export default function PoseWebcamPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
+    <div className="mx-auto w-full max-w-4xl px-4 py-4 md:py-8">
       <div className="mb-8">
         {/* 개발 디버깅용 안보이는 버튼 */}
         <button
@@ -365,15 +390,18 @@ export default function PoseWebcamPage() {
         >
           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         </button>
-        <h2 className="mb-2 text-3xl font-bold text-text">초기 정자세 설정</h2>
+        <h2 className="mb-2 text-2xl font-bold text-text md:text-3xl">
+          초기 정자세 설정
+        </h2>
         <p className="text-muted text-sm">정자세를 유지해주세요.</p>
       </div>
 
       {/* Control Panel */}
-      <div className="mb-6 rounded-xl border border-border bg-surface p-6 shadow-soft">
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex flex-wrap items-center gap-4">
+      <div className="mb-6 rounded-xl border border-border bg-surface p-4 shadow-soft md:p-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center">
+          <div className="flex w-full flex-col gap-4 md:w-auto md:flex-row md:items-center">
             <Button
+              className={`w-full md:w-auto`}
               onClick={running ? stop : start}
               variant={running ? 'secondary' : 'primary'}
               size="lg"
@@ -389,8 +417,9 @@ export default function PoseWebcamPage() {
               <span className="text-sm text-text-muted">{status}</span>
             </div>
           </div>
-          <div className="ml-auto">
+          <div className="ml-auto w-full md:w-auto">
             <Button
+              className={`w-full md:w-auto`}
               onClick={isMeasuring ? stopMeasurement : startMeasurement}
               variant={isMeasuring ? 'secondary' : 'primary'}
               size="lg"
@@ -406,7 +435,7 @@ export default function PoseWebcamPage() {
 
       {/* Completion Panel */}
       {avgMeasurementData && (
-        <div className="mb-8 rounded-xl border border-success bg-gradient-to-r from-success/10 to-success/5 p-8 shadow-soft">
+        <div className="mb-8 rounded-xl border border-success bg-gradient-to-r from-success/10 to-success/5 p-4 shadow-soft md:p-8">
           <div className="flex flex-col items-center justify-center gap-6 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500">
               <span className="material-symbols-outlined text-4xl text-white">

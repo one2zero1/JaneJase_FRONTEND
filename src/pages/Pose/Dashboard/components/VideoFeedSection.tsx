@@ -9,6 +9,7 @@ interface VideoFeedSectionProps {
   running: boolean;
   start: () => void;
   stop: () => void;
+  reset: () => void;
 }
 
 export function VideoFeedSection({
@@ -17,9 +18,14 @@ export function VideoFeedSection({
   running,
   start,
   stop,
+  reset,
 }: VideoFeedSectionProps) {
   return (
-    <div className="relative flex-grow bg-black rounded-2xl overflow-hidden shadow-2xl border-4 border-transparent hover:border-border transition-all duration-300 group">
+    <div
+      className={`relative flex-grow bg-black rounded-2xl overflow-hidden shadow-2xl border-4 transition-all duration-300 group ${
+        running ? 'border-transparent hover:border-border' : 'border-red-500'
+      }`}
+    >
       <video
         ref={videoRef}
         autoPlay
@@ -30,7 +36,9 @@ export function VideoFeedSection({
       />
       <Pose2DRenderer
         ref={pose2DRef}
-        className="pointer-events-none absolute left-0 top-0 h-full w-full"
+        className={`pointer-events-none absolute left-0 top-0 h-full w-full ${
+          !running ? 'hidden' : ''
+        }`}
       />
 
       {/* 하단 컨트롤 */}
@@ -44,6 +52,13 @@ export function VideoFeedSection({
           </p>
         </div>
         <div className="flex space-x-4">
+          <Button
+            onClick={reset}
+            variant="secondary"
+            className="bg-white/10 hover:bg-white/20 border-white/20 text-white"
+          >
+            리셋
+          </Button>
           <Button
             onClick={running ? stop : start}
             variant={running ? 'secondary' : 'primary'}

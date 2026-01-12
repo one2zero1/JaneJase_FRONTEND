@@ -1,16 +1,10 @@
 import { useRef, useImperativeHandle, forwardRef } from 'react';
 import { PoseLandmarker, DrawingUtils } from '@mediapipe/tasks-vision';
+import { emaSmooth2DLandmarks } from '@/utils/detectPose';
+import type { MediapipeLandmark } from '@/types/poseTypes';
 
 export interface Pose2DRendererRef {
-  updateLandmarks: (
-    landmarks: Array<{
-      x: number;
-      y: number;
-      z?: number;
-      visibility?: number;
-      presence?: number;
-    }>
-  ) => void;
+  updateLandmarks: (landmarks: MediapipeLandmark[]) => void;
   clear: () => void;
   setCanvasSize: (width: number, height: number) => void;
 }
@@ -29,69 +23,6 @@ export const Pose2DRenderer = forwardRef<
   const ema2DRef = useRef<Float32Array | null>(null);
   const ema2DInitedRef = useRef(false);
 
-  /**
-   * 2D 랜드마크를 EMA(Exponential Moving Average) 알고리즘으로 부드럽게 처리
-   * @param lm - 원본 랜드마크 배열
-   * @param alpha - 평활화 계수 (0~1, 높을수록 현재 값에 가중치)
-   * @param minConf - 최소 신뢰도 임계값 (이보다 낮은 랜드마크는 평활화에서 제외)
-   * @returns 평활화된 랜드마크 배열
-   */
-  function emaSmooth2DLandmarks(
-    lm: Array<{
-      x: number;
-      y: number;
-      z?: number;
-      visibility?: number;
-      presence?: number;
-    }>,
-    alpha = 0.25,
-    minConf = 0.5
-  ) {
-    const n = lm.length;
-    const needed = n * 3;
-
-    if (!ema2DRef.current || ema2DRef.current.length !== needed) {
-      ema2DRef.current = new Float32Array(needed);
-      ema2DInitedRef.current = false;
-    }
-
-    const buf = ema2DRef.current;
-
-    if (!ema2DInitedRef.current) {
-      for (let i = 0; i < n; i++) {
-        const p = lm[i];
-        buf[i * 3 + 0] = p.x;
-        buf[i * 3 + 1] = p.y;
-        buf[i * 3 + 2] = p.z ?? 0;
-      }
-      ema2DInitedRef.current = true;
-    } else {
-      for (let i = 0; i < n; i++) {
-        const p = lm[i];
-        const conf = Math.min(p.visibility ?? 1, p.presence ?? 1);
-        if (conf < minConf) continue;
-
-        const ix = i * 3;
-        buf[ix + 0] = alpha * p.x + (1 - alpha) * buf[ix + 0];
-        buf[ix + 1] = alpha * p.y + (1 - alpha) * buf[ix + 1];
-        buf[ix + 2] = alpha * (p.z ?? 0) + (1 - alpha) * buf[ix + 2];
-      }
-    }
-
-    const out = new Array(n);
-    for (let i = 0; i < n; i++) {
-      const ix = i * 3;
-      out[i] = {
-        x: buf[ix + 0],
-        y: buf[ix + 1],
-        z: buf[ix + 2],
-        visibility: lm[i].visibility,
-        presence: lm[i].presence,
-      };
-    }
-    return out;
-  }
-
   useImperativeHandle(ref, () => ({
     /**
      * 2D 캔버스에 포즈 랜드마크를 그리기 (점과 연결선)
@@ -109,11 +40,26 @@ export const Pose2DRenderer = forwardRef<
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       if (landmarks && landmarks.length) {
-        const smoothed = emaSmooth2DLandmarks(landmarks, 0.25, 0.5);
-        drawingUtils.drawLandmarks(smoothed, { radius: 4 });
-        drawingUtils.drawConnectors(smoothed, PoseLandmarker.POSE_CONNECTIONS, {
-          lineWidth: 2,
-        });
+        const { smoothedLandmarks, updatedBuffer, updatedInited } =
+          emaSmooth2DLandmarks(
+            landmarks,
+            ema2DRef.current,
+            ema2DInitedRef.current,
+            0.25,
+            0.5
+          );
+
+        ema2DRef.current = updatedBuffer;
+        ema2DInitedRef.current = updatedInited;
+
+        drawingUtils.drawLandmarks(smoothedLandmarks, { radius: 4 });
+        drawingUtils.drawConnectors(
+          smoothedLandmarks,
+          PoseLandmarker.POSE_CONNECTIONS,
+          {
+            lineWidth: 2,
+          }
+        );
       }
     },
 
