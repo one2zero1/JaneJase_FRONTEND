@@ -5,6 +5,14 @@ export interface Coordinate {
   z: number;
 }
 
+export interface MediapipeLandmark {
+  x: number;
+  y: number;
+  z?: number;
+  visibility?: number;
+  presence?: number;
+}
+
 export interface detectBadPoseInform {
   diffNSDegree: number;
   diffESDegree: number;
@@ -29,11 +37,16 @@ export interface MeasurementData {
   mouthRight: Coordinate;
   leftShoulder: Coordinate;
   rightShoulder: Coordinate;
+  leftHip: Coordinate;
+  rightHip: Coordinate;
   shoulderCenter: Coordinate;
   shoulderWidth: number;
+  hipCenter?: Coordinate;
+  hipWidth?: number;
 }
 
 // location.state의 전체 구조
 export interface LocationState {
   measurementData: MeasurementData | null; // ref.current는 null일 수도 있으므로
+  pose_id: string;
 }

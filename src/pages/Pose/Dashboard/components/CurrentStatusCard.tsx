@@ -1,5 +1,4 @@
 import type { detectBadPoseInform } from '@/types/poseTypes';
-import { Turtle, Scale, ScanFace } from 'lucide-react';
 
 interface CurrentStatusCardProps {
   detectBadPoseInform: detectBadPoseInform;
@@ -79,10 +78,7 @@ export function CurrentStatusCard({
       <div className="space-y-4">
         <div>
           <div className="flex justify-between text-sm mb-1">
-            <div className="flex gap-2 items-center">
-              <ScanFace />
-              <span className="text-text-muted">고개 숙임</span>
-            </div>
+            <span className="text-text-muted">고개 숙임 차이</span>
             <span
               className={`font-medium ${headdownStatus === 'danger' ? 'text-red-500' : headdownStatus === 'warning' ? 'text-yellow-500' : 'text-green-500'}`}
             >
@@ -99,10 +95,7 @@ export function CurrentStatusCard({
 
         <div>
           <div className="flex justify-between text-sm mb-1">
-            <div className="flex gap-2 items-center">
-              <Turtle />
-              <span className="text-text-muted">거북목</span>
-            </div>
+            <span className="text-text-muted">거북목 차이</span>
             <span
               className={`font-medium ${headforwardStatus === 'danger' ? 'text-red-500' : headforwardStatus === 'warning' ? 'text-yellow-500' : 'text-green-500'}`}
             >
@@ -119,10 +112,7 @@ export function CurrentStatusCard({
 
         <div>
           <div className="flex justify-between text-sm mb-1">
-            <div className="flex gap-2 items-center">
-              <Scale />
-              <span className="text-text-muted">어깨 기울기 차이</span>
-            </div>
+            <span className="text-text-muted">어깨 기울기 차이</span>
             <span
               className={`font-medium ${shoulderLeanStatus === 'danger' ? 'text-red-500' : shoulderLeanStatus === 'warning' ? 'text-yellow-500' : 'text-green-500'}`}
             >

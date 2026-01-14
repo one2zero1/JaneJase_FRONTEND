@@ -46,6 +46,7 @@ module.exports = {
         primary: 'rgb(var(--jj-primary) / <alpha-value>)',
         accent: 'rgb(var(--jj-accent) / <alpha-value>)',
         success: 'rgb(var(--jj-success) / <alpha-value>)',
+        danger: 'rgb(var(--jj-danger) / <alpha-value>)',
 
         'primary-soft': 'rgb(var(--jj-primary-soft) / <alpha-value>)',
         'accent-soft': 'rgb(var(--jj-accent-soft) / <alpha-value>)',

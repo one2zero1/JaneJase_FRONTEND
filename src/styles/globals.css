@@ -10,41 +10,66 @@
 @layer base {
   :root {
     /* surfaces */
-    --jj-bg: 248 250 252; /* #F8FAFC */
-    --jj-surface: 255 255 255; /* #FFFFFF */
-    --jj-border: 226 232 240; /* #E2E8F0 */
+    --jj-bg: 248 250 252;
+    /* #F8FAFC */
+    --jj-surface: 255 255 255;
+    /* #FFFFFF */
+    --jj-border: 226 232 240;
+    /* #E2E8F0 */
 
     /* text */
-    --jj-text: 15 23 42; /* #0F172A */
-    --jj-text-muted: 51 65 85; /* #334155 */
-    --jj-muted: 100 116 139; /* #64748B */
+    --jj-text: 15 23 42;
+    /* #0F172A */
+    --jj-text-muted: 51 65 85;
+    /* #334155 */
+    --jj-muted: 100 116 139;
+    /* #64748B */
 
     /* brand semantic */
-    --jj-primary: 0 100 255; /* #0064FF */
-    --jj-accent: 95 51 255; /* #5F33FF */
-    --jj-success: 0 135 0; /* #008700 */
+    --jj-primary: 0 100 255;
+    /* #0064FF */
+    --jj-accent: 95 51 255;
+    /* #5F33FF */
+    --jj-success: 0 135 0;
+    /* #008700 */
+    --jj-danger: 220 38 38;
+    /* #DC2626 (Red 600) */
 
     /* soft tints */
-    --jj-primary-soft: 242 247 255; /* #F2F7FF */
-    --jj-accent-soft: 247 245 255; /* #F7F5FF */
-    --jj-success-soft: 242 250 242; /* #F2FAF2 */
+    --jj-primary-soft: 242 247 255;
+    /* #F2F7FF */
+    --jj-accent-soft: 247 245 255;
+    /* #F7F5FF */
+    --jj-success-soft: 242 250 242;
+    /* #F2FAF2 */
   }
 
   .dark {
     /* surfaces */
-    --jj-bg: 11 18 32; /* #0B1220 */
-    --jj-surface: 17 24 39; /* #111827 */
-    --jj-border: 55 65 81; /* #374151 */
+    --jj-bg: 11 18 32;
+    /* #0B1220 */
+    --jj-surface: 17 24 39;
+    /* #111827 */
+    --jj-border: 55 65 81;
+    /* #374151 */
 
     /* text */
-    --jj-text: 229 231 235; /* #E5E7EB */
-    --jj-text-muted: 156 163 175; /* #9CA3AF */
-    --jj-muted: 148 163 184; /* #94A3B8 */
+    --jj-text: 229 231 235;
+    /* #E5E7EB */
+    --jj-text-muted: 156 163 175;
+    /* #9CA3AF */
+    --jj-muted: 148 163 184;
+    /* #94A3B8 */
 
     /* brand semantic (다크에서 살짝 “발광” 느낌 나게 유지) */
-    --jj-primary: 153 193 255; /* blue-300 느낌 */
-    --jj-accent: 191 173 255; /* purple-300 느낌 */
-    --jj-success: 153 217 153; /* green-300 느낌 */
+    --jj-primary: 153 193 255;
+    /* blue-300 느낌 */
+    --jj-accent: 191 173 255;
+    /* purple-300 느낌 */
+    --jj-success: 153 217 153;
+    /* green-300 느낌 */
+    --jj-danger: 248 113 113;
+    /* #F87171 (Red 400) */
 
     /* soft tints */
     --jj-primary-soft: 20 30 55;

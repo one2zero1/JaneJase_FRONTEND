@@ -1,9 +1,9 @@
 interface TodayStatsCardProps {
   warnings: number;
-  focusTime: number;
+  unfocusTime: number;
 }
 
-export function TodayStatsCard({ warnings, focusTime }: TodayStatsCardProps) {
+export function TodayStatsCard({ warnings, unfocusTime }: TodayStatsCardProps) {
   return (
     <div className="bg-surface dark:bg-surface-dark rounded-xl shadow-soft border border-border p-6">
       <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-4">
@@ -15,8 +15,8 @@ export function TodayStatsCard({ warnings, focusTime }: TodayStatsCardProps) {
           <p className="text-xl font-bold text-danger">{warnings}회</p>
         </div>
         <div className="text-center p-3 bg-bg rounded-lg">
-          <p className="text-xs text-text-muted mb-1">집중 시간</p>
-          <p className="text-xl font-bold text-text">{focusTime}분</p>
+          <p className="text-xs text-text-muted mb-1">흐트러진 시간</p>
+          <p className="text-xl font-bold text-text">{unfocusTime}분</p>
         </div>
       </div>
     </div>

@@ -8,7 +8,11 @@ import { Pose3DRenderer } from '../Pose3DRenderer';
 import type { Pose2DRendererRef } from '../Pose2DRenderer';
 import type { Pose3DRendererRef } from '../Pose3DRenderer';
 import type { Coordinate, MeasurementData } from '@/types/poseTypes';
-import { getCenter, dist } from '@/utils/detectPose';
+import { getCenter, dist2D } from '@/utils/detectPose';
+import { usePoseStore } from '@/stores/usePoseStore';
+import useGoogleStore from '@/stores/useAuthStore';
+import standardPoseImg from '@/assets/imgs/standardPose.png';
+
 const TASKS_VERSION = '0.10.0';
 const MODEL_URL =
   'https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task';
@@ -31,6 +35,7 @@ export default function PoseWebcamPage() {
   const [running, setRunning] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const [errorModalOpen, setErrorModalOpen] = useState(false);
+
   const [errorMessage, setErrorMessage] = useState('');
   const [isMeasuring, setIsMeasuring] = useState(false);
   const [measurementProgress, setMeasurementProgress] = useState(0);
@@ -53,16 +58,40 @@ export default function PoseWebcamPage() {
       mouthRight: Coordinate;
       leftShoulder: Coordinate;
       rightShoulder: Coordinate;
+      leftHip: Coordinate;
+      rightHip: Coordinate;
     }>
   >([]);
 
   const measurementTimerRef = useRef<number | null>(null);
   const measurementStartTimeRef = useRef<number>(0);
 
-  const handleNextPage = () => {
-    navigate('/pose/dashboard', {
-      state: { measurementData: avgMeasurementData },
-    });
+  const saveStandardData = usePoseStore(state => state.saveStandardData);
+  const user = useGoogleStore(state => state.user);
+
+  const handleNextPage = async () => {
+    try {
+      if (!avgMeasurementData) {
+        throw new Error('측정 데이터가 없습니다.');
+      }
+
+      const pose_id = await saveStandardData({
+        user_id: user?.id || '',
+        measurement: avgMeasurementData,
+        ended_at: null,
+      });
+
+      if (pose_id) {
+        navigate('/pose/dashboard', {
+          state: {
+            measurementData: avgMeasurementData,
+            pose_id: pose_id,
+          },
+        });
+      }
+    } catch (error) {
+      console.error('Standard Data 저장 실패:', error);
+    }
   };
 
   const calculateAverage = (points: Array<Coordinate>) => {
@@ -106,16 +135,26 @@ export default function PoseWebcamPage() {
         mouthRight: calculateAverage(data.map(d => d.mouthRight)),
         leftShoulder: calculateAverage(data.map(d => d.leftShoulder)),
         rightShoulder: calculateAverage(data.map(d => d.rightShoulder)),
+        leftHip: calculateAverage(data.map(d => d.leftHip)),
+        rightHip: calculateAverage(data.map(d => d.rightHip)),
       };
 
-      // 어깨 중심과 너비 계산 및 추가
+      // 어깨/힙 중심과 너비 계산 및 추가 (스케일은 2D로 정규화하는 것이 더 안정적)
       const shoulderCenter = getCenter(
         avgData.leftShoulder,
         avgData.rightShoulder
       );
-      const shoulderWidth = dist(avgData.leftShoulder, avgData.rightShoulder);
+      const shoulderWidth = dist2D(avgData.leftShoulder, avgData.rightShoulder);
+      const hipCenter = getCenter(avgData.leftHip, avgData.rightHip);
+      const hipWidth = dist2D(avgData.leftHip, avgData.rightHip);
 
-      setAvgMeasurementData({ ...avgData, shoulderCenter, shoulderWidth });
+      setAvgMeasurementData({
+        ...avgData,
+        shoulderCenter,
+        shoulderWidth,
+        hipCenter,
+        hipWidth,
+      });
 
       console.log('=== 측정 완료: 10초간 수집된 랜드마크 평균값 ===');
       console.log('0 - nose:', avgData.nose);
@@ -292,7 +331,8 @@ export default function PoseWebcamPage() {
               pose2DRef.current?.updateLandmarks(lm2d as any);
 
               // 측정 중일 때 랜드마크 데이터 수집
-              if (isMeasuringRef.current && lm2d.length >= 13) {
+              // hip(23,24)까지 쓰므로 길이 체크
+              if (isMeasuringRef.current && lm2d.length >= 25) {
                 measurementDataRef.current.push({
                   nose: { x: lm2d[0].x, y: lm2d[0].y, z: lm2d[0].z },
                   leftEyeInner: { x: lm2d[1].x, y: lm2d[1].y, z: lm2d[1].z },
@@ -311,6 +351,8 @@ export default function PoseWebcamPage() {
                     y: lm2d[12].y,
                     z: lm2d[12].z,
                   },
+                  leftHip: { x: lm2d[23].x, y: lm2d[23].y, z: lm2d[23].z },
+                  rightHip: { x: lm2d[24].x, y: lm2d[24].y, z: lm2d[24].z },
                 });
               }
             }
@@ -339,7 +381,7 @@ export default function PoseWebcamPage() {
   }
 
   return (
-    <div className="mx-auto max-w-4xl px-4 py-8">
+    <div className="mx-auto w-full max-w-4xl px-4 py-4 md:py-8">
       <div className="mb-8">
         {/* 개발 디버깅용 안보이는 버튼 */}
         <button
@@ -350,15 +392,46 @@ export default function PoseWebcamPage() {
         >
           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
         </button>
-        <h2 className="mb-2 text-3xl font-bold text-text">초기 정자세 설정</h2>
+        <div className="flex items-center gap-2 mb-2 relative z-50">
+          <h2 className="text-2xl font-bold text-text md:text-3xl">
+            초기 정자세 설정
+          </h2>
+          <div className="relative group">
+            <span className="material-symbols-outlined text-2xl text-text-muted hover:text-text cursor-help transition-colors">
+              help
+            </span>
+            {/* Tooltip Content */}
+            <div className="invisible group-hover:visible opacity-0 group-hover:opacity-100 transition-all duration-300 absolute left-full top-48 -translate-y-1/2 ml-4 w-[400px] bg-surface dark:bg-surface-dark rounded-xl shadow-xl border border-border p-4 z-50 pointer-events-none group-hover:pointer-events-auto">
+              <div className="space-y-3">
+                <div className="font-bold text-lg mb-2">정자세 가이드</div>
+                <div className="flex justify-center overflow-hidden rounded-lg bg-black/5 dark:bg-white/5">
+                  <img
+                    src={standardPoseImg}
+                    alt="정자세 가이드"
+                    className="w-full object-contain"
+                  />
+                </div>
+                <p className="text-sm text-text-muted leading-relaxed">
+                  위 예시처럼 정면을 보고 허리를 펴 바른 자세를 취해주세요.
+                  <br />
+                  Start 버튼을 누르고 측정 시작을 눌러 10초간 자세를 유지하면
+                  측정이 완료됩니다.
+                </p>
+              </div>
+              {/* Arrow */}
+              <div className="absolute right-[100%] top-1/2 -translate-y-1/2 border-8 border-transparent border-r-surface dark:border-r-surface-dark drop-shadow-sm"></div>
+            </div>
+          </div>
+        </div>
         <p className="text-muted text-sm">정자세를 유지해주세요.</p>
       </div>
 
       {/* Control Panel */}
-      <div className="mb-6 rounded-xl border border-border bg-surface p-6 shadow-soft">
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex flex-wrap items-center gap-4">
+      <div className="mb-6 rounded-xl border border-border bg-surface p-4 shadow-soft md:p-6">
+        <div className="flex flex-col gap-4 md:flex-row md:items-center">
+          <div className="flex w-full flex-col gap-4 md:w-auto md:flex-row md:items-center">
             <Button
+              className={`w-full md:w-auto`}
               onClick={running ? stop : start}
               variant={running ? 'secondary' : 'primary'}
               size="lg"
@@ -374,8 +447,9 @@ export default function PoseWebcamPage() {
               <span className="text-sm text-text-muted">{status}</span>
             </div>
           </div>
-          <div className="ml-auto">
+          <div className="ml-auto w-full md:w-auto">
             <Button
+              className={`w-full md:w-auto`}
               onClick={isMeasuring ? stopMeasurement : startMeasurement}
               variant={isMeasuring ? 'secondary' : 'primary'}
               size="lg"
@@ -391,7 +465,7 @@ export default function PoseWebcamPage() {
 
       {/* Completion Panel */}
       {avgMeasurementData && (
-        <div className="mb-8 rounded-xl border border-success bg-gradient-to-r from-success/10 to-success/5 p-8 shadow-soft">
+        <div className="mb-8 rounded-xl border border-success bg-gradient-to-r from-success/10 to-success/5 p-4 shadow-soft md:p-8">
           <div className="flex flex-col items-center justify-center gap-6 text-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-full bg-green-500">
               <span className="material-symbols-outlined text-4xl text-white">
@@ -404,7 +478,7 @@ export default function PoseWebcamPage() {
               </h3>
             </div>
             <Button onClick={handleNextPage} variant="accent" size="lg">
-              다음 단계로 이동
+              자세 교정하러 가기
             </Button>
           </div>
         </div>
